@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Localização para Forms</title>
+    <style>
+        /* Estilos básicos para o botão */
+        body { font-family: Arial, sans-serif; text-align: center; padding-top: 50px; background-color: #f4f4f9; }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #45a049; }
+        #status { margin-top: 20px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+
+    <h1>Envio de Localização</h1>
+    <p>Clique no botão abaixo para enviar sua localização (Latitude e Longitude) para o Formulário Google.</p>
+
+    <button onclick="getAndSendLocation()">
+        Enviar Minha Localização
+    </button>
+
+    <div id="status">Aguardando ação...</div>
+
+    <script>
+        // SUBSTITUA ESTES VALORES PELOS SEUS DE VERDADE
+        const URL_BASE_FORM = "https://docs.google.com/forms/d/e/1FAIpQLScRDzC2WVzgBanD1SIOQgQh3_ygRSVdSHAq5pk6SO0x3YCFxQ/viewform?usp=pp_url"; // O LINK BASE QUE VOCÊ COPIOU
+        const ID_CAMPO_LATITUDE = "entry.689780364"; // EX: entry.123456789
+        const ID_CAMPO_LONGITUDE = "entry.876692635"; // EX: entry.987654321
+
+        function getAndSendLocation() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Buscando sua localização...';
+
+            if (navigator.geolocation) {
+                // Pede a localização ao navegador do usuário
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const long = position.coords.longitude;
+                        
+                        statusDiv.textContent = `Localização encontrada! Lat: ${lat}, Long: ${long}. Redirecionando...`;
+
+                        // Constrói o link do Google Forms com os dados de localização
+                        const formsUrl = `${URL_BASE_FORM}&${ID_CAMPO_LATITUDE}=${lat}&${ID_CAMPO_LONGITUDE}=${long}`;
+
+                        // Redireciona para o Google Forms com os campos preenchidos
+                        window.location.href = formsUrl;
+                    },
+                    (error) => {
+                        // Trata erros (usuário negou, timeout, etc.)
+                        statusDiv.textContent = `Erro ao obter localização: ${error.message}`;
+                        alert("Erro ao obter a localização. Verifique se você permitiu o acesso à localização.");
+                    },
+                    {
+                        enableHighAccuracy: true, // Tenta obter a melhor precisão possível
+                        timeout: 5000, // Limite de 5 segundos para a busca
+                        maximumAge: 0 // Não usa cache
+                    }
+                );
+            } else {
+                statusDiv.textContent = 'Geolocalização não é suportada por este navegador.';
+                alert("Seu navegador não suporta geolocalização.");
+            }
+        }
+    </script>
+</body>
+</html>
